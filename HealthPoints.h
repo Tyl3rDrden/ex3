@@ -15,8 +15,6 @@ class HealthPoints
     public:
         class InvalidArgument 
         {
-            public:
-            InvalidArgument();
             //Creating an empty constructor so i can throw it as an argument
         };
         int getPoints() const;

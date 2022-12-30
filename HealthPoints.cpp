@@ -1,12 +1,12 @@
 #include "HealthPoints.h"
 
 
-HealthPoints::HealthPoints(int maxHealth = DEFAULTMAX)
+HealthPoints::HealthPoints(int maxHealth)
 {
     if(maxHealth <= 0)
     {
         //Throwing the object revcieved by the deault constructor !
-        throw HealthPoints::InvalidArgument::InvalidArgument();
+        throw HealthPoints::InvalidArgument();
     }
     m_maxPoints = maxHealth;
     m_points = m_maxPoints;
@@ -85,6 +85,7 @@ bool operator>(const HealthPoints& t1, const HealthPoints& t2)
 std::ostream& operator<<(std::ostream& os, const HealthPoints& t1)
 {
     os<< t1.getPoints()<<'(' << t1.m_maxPoints << ')';
+    return os;
 }
 HealthPoints operator-(const HealthPoints& x, const int& y)
 {
