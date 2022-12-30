@@ -202,6 +202,26 @@ T& Queue<T>::Iterator::operator*() const
     
 }
 
+
+template <typename T>
+const T& Queue<T>::ConstIterator::operator*() const
+{
+    
+    //Check no null pointers
+
+        if(this->nodePtr == TERMINATORNODE)
+        {
+            //Portnetial problem with the indexes here
+            throw Queue<T>::ConstIterator::InvalidOperation();
+        }
+        if(!this->nodePtr)
+        {
+            //NullPointer
+            throw Queue<T>::ConstIterator::InvalidOperation();
+        }
+        return this->nodePtr->data;
+    
+}
 template <typename T>
 typename Queue<T>::Iterator Queue<T>::begin()
 {
@@ -255,9 +275,17 @@ typename Queue<T>::Iterator& Queue<T>::Iterator::operator++()//Prefix
 }
 
 template <typename T>
-typename Queue<T>::Iterator Queue<T>::Iterator::operator++(int)//Prefix
+typename Queue<T>::ConstIterator& Queue<T>::ConstIterator::operator++()//Prefix
 {
-    Queue<T>::Iterator result = *this;
+    //Index in bounds
+    ++index;
+    return *this;
+}
+
+template <typename T>
+typename Queue<T>::ConstIterator Queue<T>::ConstIterator::operator++(int)//postfix
+{
+    Queue<T>::ConstIterator result = *this;
     ++*this;
     return result;
     //Genius !!!!!
@@ -274,6 +302,11 @@ bool Queue<T>::Iterator::operator==(const Iterator& i) const
 
 template <typename T>
 bool Queue<T>::Iterator::operator!=(const Iterator& i) const
+{
+    return (i.nodePtr != this->nodePtr);
+}
+template <typename T>
+bool Queue<T>::ConstIterator::operator!=(const ConstIterator& i) const
 {
     return (i.nodePtr != this->nodePtr);
 }
