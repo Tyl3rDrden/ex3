@@ -17,7 +17,6 @@ class HealthPoints
         {
             //Creating an empty constructor so i can throw it as an argument
         };
-        int getPoints() const;
         //proper get function
         HealthPoints(int maxHealth = DEFAULTMAX);
         //conversion operator into int 
@@ -28,22 +27,31 @@ class HealthPoints
         HealthPoints& operator-=(const HealthPoints& t1);
         //Technically i did not need to use friend but i'm curious!!
         //Don't judge me!
-        friend bool operator<=(const HealthPoints& t1, const HealthPoints& t2);
-        friend bool operator>=(const HealthPoints& t1, const HealthPoints& t2);
-        friend bool operator==(const HealthPoints& t1, const HealthPoints& t2);
-        friend bool operator!=(const HealthPoints& t1, const HealthPoints& t2);
         //I'll implmemnt these with the ones up top given the
         //special case that the operators are equal
-        friend bool operator<(const HealthPoints& t1, const HealthPoints& t2);
-        friend bool operator>(const HealthPoints& t1, const HealthPoints& t2);
+
+
+        //All of the above don't need friend need to delete!
         friend std::ostream& operator<<(std::ostream& os, const HealthPoints& t1);
         //wow i have a lot of friends !!!!
         //I'm popular!
+        friend HealthPoints operator+(const HealthPoints& x, const HealthPoints& y);
+        friend HealthPoints operator-(const HealthPoints& x, const HealthPoints& y);
+        friend HealthPoints operator-(const HealthPoints& x, const int& y);
+        friend HealthPoints operator-(const int& y, const HealthPoints& x);
+        friend HealthPoints operator+(const HealthPoints& x, const int& y);
+        friend HealthPoints operator+(const int& y, const HealthPoints& x);
 
 };
+bool operator<(const HealthPoints& t1, const HealthPoints& t2);
+bool operator>(const HealthPoints& t1, const HealthPoints& t2);
+bool operator<=(const HealthPoints& t1, const HealthPoints& t2);
+bool operator>=(const HealthPoints& t1, const HealthPoints& t2);
+bool operator==(const HealthPoints& t1, const HealthPoints& t2);
+bool operator!=(const HealthPoints& t1, const HealthPoints& t2);
 
 //treated as a non member function
-HealthPoints operator+(const HealthPoints& x, const HealthPoints& y);
+//HealthPoints operator+(const HealthPoints& x, const HealthPoints& y);
 HealthPoints operator-(const HealthPoints& x, const HealthPoints& y);
 
 //
