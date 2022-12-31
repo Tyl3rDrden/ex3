@@ -84,7 +84,6 @@ bool testExceptions()
 
 	//Error here!
 	try {
-		std::cout << "HERE!";
 		++endIterator;
 	}
 	catch (Queue<int>::Iterator::InvalidOperation& e) {

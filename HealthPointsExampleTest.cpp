@@ -27,7 +27,6 @@ bool testInitialization()
 	catch (HealthPoints::InvalidArgument& e) {
 		exceptionThrown = true;
 	}
-
 	testResult = testResult && exceptionThrown;
 	testResult = testResult && checkHealthPointsValues(healthPoints1, 100, 100);
 	return testResult;
@@ -42,7 +41,9 @@ bool testArithmaticOperators()
 	testResult = testResult && checkHealthPointsValues(healthPoints1, 80, 100);
 	healthPoints1 += 100; /* now has 100 points out of 100 */
 	testResult = testResult && checkHealthPointsValues(healthPoints1, 100, 100);
+	
 	healthPoints1 -= 150; /* now has 0 points out of 100 */
+
 	testResult = testResult && checkHealthPointsValues(healthPoints1, 0, 100);
 	healthPoints2 = healthPoints2 - 160; /* now has 0 points out of 150 */
 	testResult = testResult && checkHealthPointsValues(healthPoints2, 0, 150);
