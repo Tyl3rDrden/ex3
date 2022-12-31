@@ -25,15 +25,12 @@ bool testQueueMethods()
 	queue1.pushBack(2);
 	int front1 = queue1.front();
 	AGREGATE_TEST_RESULT(testResult, front1 == 1);
-
 	queue1.front() = 3;
 	front1 = queue1.front();
 	AGREGATE_TEST_RESULT(testResult, front1 == 3);
-
 	queue1.popFront();
 	front1 = queue1.front();
 	AGREGATE_TEST_RESULT(testResult, front1 == 2);
-
 	int size1 = queue1.size();
 	AGREGATE_TEST_RESULT(testResult, size1 == 1);
 
@@ -64,7 +61,6 @@ bool testModuleFunctions()
 	for (Queue<int>::Iterator i = queue5.begin(); i != queue5.end(); ++i) {
 		AGREGATE_TEST_RESULT(testResult,(*i == 42));
 	}
-
 	return testResult;
 }
 
@@ -81,17 +77,20 @@ bool testExceptions()
 		exceptionThrown = true;
 	}
 	AGREGATE_TEST_RESULT(testResult, exceptionThrown);
-
 	exceptionThrown = false;
+
 	Queue<int>::Iterator endIterator = queue6.end();
+
+
+	//Error here!
 	try {
+		std::cout << "HERE!";
 		++endIterator;
 	}
 	catch (Queue<int>::Iterator::InvalidOperation& e) {
 		exceptionThrown = true;
 	}
 	AGREGATE_TEST_RESULT(testResult, exceptionThrown);
-
 	return testResult;
 }
 

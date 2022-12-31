@@ -2,7 +2,7 @@
 #define QUEUEH
 #include <exception>
 #include <stdexcept>
-
+#include <iostream>
 #include <assert.h>
 
 #define TERMINATORNODE nullptr
@@ -127,16 +127,21 @@ void Queue<T>::pushBack(T data)
         Node *newNode = new Node(data);
         // Bad alloc exception here
         // Update size
+        if(m_size == 0)
+        {
+            head = newNode;
+            tail = head;
+        }
         m_size++;
         // Check if queue is empty
             // Set next of current tail to new node
         tail->next = newNode;
-
-        // Set tail to new node
         tail = newNode;
+        // Set tail to new node
     }
     catch (std::bad_alloc& ba)
     {
+        std::cout << "Out of memory!!";
         //Handle Exeption (do nothing)
 
     }
@@ -146,14 +151,13 @@ void Queue<T>::pushBack(T data)
 template <class T>
 T& Queue<T>::front() const
 {
-
     if(m_size == 0)
     {
         //Queue is empty, Throw exception
         throw Queue<T>::EmptyQueue();
     }
     //Else throw an exception!
-        return head->data;
+    return head->data;
 }
 
 template <class T>
@@ -236,12 +240,8 @@ typename Queue<T>::Iterator Queue<T>::begin()
 template <typename T>
 typename Queue<T>::Iterator Queue<T>::end()
 {
-    if(m_size == 0)
-    {
-            //Empty Queue
-        throw Queue<T>::EmptyQueue();
-    }
-    return Iterator(Queue<T>::tail, m_size);
+    
+    return Iterator(nullptr, m_size);
 }
 
 template <typename T>
@@ -258,19 +258,21 @@ typename Queue<T>::ConstIterator Queue<T>::begin() const
 template <typename T>
 typename Queue<T>::ConstIterator Queue<T>::end() const
 {
-    if(m_size == 0)
-    {
-            //Empty Queue
-        throw Queue<T>::EmptyQueue();
-    }
-    return ConstIterator(Queue<T>::tail, m_size);
+    return ConstIterator(nullptr, m_size);
 }
 
 template <typename T>
 typename Queue<T>::Iterator& Queue<T>::Iterator::operator++()//Prefix
 {
     //Index in bounds
-    ++index;
+    //Check Valid operator 
+
+
+    if(!&(*this->nodePtr))
+    {
+        throw Queue<T>::Iterator::InvalidOperation();
+    }
+    nodePtr = nodePtr->next;
     return *this;
 }
 
@@ -278,19 +280,38 @@ template <typename T>
 typename Queue<T>::ConstIterator& Queue<T>::ConstIterator::operator++()//Prefix
 {
     //Index in bounds
-    ++index;
+    if(!&(*this->nodePtr))
+    {
+        throw Queue<T>::ConstIterator::InvalidOperation();
+    }
+    nodePtr = nodePtr->next;
     return *this;
 }
 
 template <typename T>
 typename Queue<T>::ConstIterator Queue<T>::ConstIterator::operator++(int)//postfix
 {
+    if(!&(*this->nodePtr))
+    {
+        throw Queue<T>::ConstIterator::InvalidOperation();
+    }
     Queue<T>::ConstIterator result = *this;
     ++*this;
     return result;
     //Genius !!!!!
 }
-
+template <typename T>
+typename Queue<T>::Iterator Queue<T>::Iterator::operator++(int)//postfix
+{
+    if(!&(*this->nodePtr))
+    {
+        throw Queue<T>::Iterator::InvalidOperation();
+    }
+    Queue<T>::ConstIterator result = *this;
+    ++*this;
+    return result;
+    //Genius !!!!!
+}
 template <typename T>
 bool Queue<T>::Iterator::operator==(const Iterator& i) const
 {
@@ -353,15 +374,13 @@ Queue<T>::~Queue()
 template <class T, class Condition>
 Queue<T> filter(Queue<T>& inputQueue ,const Condition& condition)
 {
-    Queue<T> result = Queue<T>(); 
-    for (const T& element : inputQueue) {
-        if(condition(element))
-        {
-            result.pushBack(element);
+    Queue<T> result;
+    for (typename Queue<T>::Iterator i = inputQueue.begin(); i != inputQueue.end(); ++i) {
+        if (condition(*i)) {
+            result.pushBack(*i);
         }
     }
     return result;
-    
 }
 
 template <class T, class Operation>
