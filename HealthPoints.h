@@ -21,7 +21,8 @@ class HealthPoints
         HealthPoints(int maxHealth = DEFAULTMAX);
         //Default Conctructor
 
-        HealthPoints(const HealthPoints& healthPointsCopy):m_points(healthPointsCopy.m_points),
+        HealthPoints(const HealthPoints& healthPointsCopy):
+        m_points(healthPointsCopy.m_points),
         m_maxPoints(healthPointsCopy.m_maxPoints){};
         //Copy C`tor
 
@@ -44,24 +45,24 @@ class HealthPoints
         ~HealthPoints() = default;
 
 };
-//bool operator<(const HealthPoints& t1, const HealthPoints& t2);
-//bool operator>(const HealthPoints& t1, const HealthPoints& t2);
-
-//bool operator>(const HealthPoints& t1, const int& num);
-//bool operator>(const HealthPoints& t1, const int& num);
 
 
-//bool operator<=(const HealthPoints& t1, const HealthPoints& t2);
-//bool operator>=(const HealthPoints& t1, const HealthPoints& t2);
-//bool operator==(const HealthPoints& t1, const HealthPoints& t2);
-//bool operator!=(const HealthPoints& t1, const HealthPoints& t2);
+bool operator<(const HealthPoints& t1, const HealthPoints& t2);
+bool operator>(const HealthPoints& t1, const HealthPoints& t2);
+
+bool operator>(const HealthPoints& t1, const int& num);
+
+
+bool operator<=(const HealthPoints& t1, const HealthPoints& t2);
+bool operator>=(const HealthPoints& t1, const HealthPoints& t2);
+bool operator==(const HealthPoints& t1, const HealthPoints& t2);
+bool operator!=(const HealthPoints& t1, const HealthPoints& t2);
 
 //treated as a non member function
 //HealthPoints operator+(const HealthPoints& x, const HealthPoints& y);
 //HealthPoints operator-(const HealthPoints& x, const HealthPoints& y);
 
 //
-HealthPoints operator+(const HealthPoints& x, const int& y);
 //HealthPoints operator+(const int& y, const HealthPoints& x);
 
 
