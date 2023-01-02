@@ -42,6 +42,7 @@ class HealthPoints
         friend HealthPoints operator-(const HealthPoints hp1, const int pointsRemove);
         friend bool operator==(const HealthPoints& t1, const HealthPoints& t2);
         friend bool operator<(const HealthPoints& t1, const HealthPoints& t2);
+        friend bool operator>(const HealthPoints& t1, const int& num);
         ~HealthPoints() = default;
 
 };
@@ -81,9 +82,9 @@ std::ostream& operator<<(std::ostream& os, const HealthPoints& t1);
 
 HealthPoints operator-(const HealthPoints hp1, const int pointsRemove);
 
-HealthPoints operator+(const HealthPoints hp1, const int addPoints);
+HealthPoints operator+(const HealthPoints &hp1, const int addPoints);
 
-HealthPoints operator+(const int addPoints, const HealthPoints hp1);
+HealthPoints operator+(const int addPoints, const HealthPoints &hp1);
 
 
 #endif
