@@ -1,395 +1,294 @@
 #ifndef QUEUEH
 #define QUEUEH
-#include <exception>
-#include <stdexcept>
-#include <iostream>
-#include <assert.h>
-
-#define TERMINATORNODE nullptr
-template <class T>
-class Queue
-{
-     private: 
-        class Node
-        {
-            private:
-                T data;
-                Node* next;
-            public: 
-            //c'tor 
-                Node() : next(TERMINATORNODE) {};
-                ~Node() = default;
-                //default Ctor has to define everything as null
-
-                bool operator!=(const Node& n1);
-
-                //I have to in order to use the the -> operator
-                friend class Queue<T>::Iterator;
-                friend class Queue<T>::ConstIterator;
-                friend class Queue<T>;
-
-                Node(T data):
-                data(data), next(TERMINATORNODE){};
-                //I think even a struct would do
-                //maybe i'll need more functionality Later !
-        };
-        Node* head;
-        Node* tail;
-        int m_size;
-        //First Node (The one that gets poped )
-
-        //The one after the last one the one that is incremented uppon appendage
-
-    public: 
-    //Embedding the iterator class
-        class Iterator
-        {
-            private:
-                Node* nodePtr; 
-                int index; 
-            public:
-                Iterator(Node* node, int index):
-                nodePtr(node), index(index){};
-                //Interface part
-                T& operator*() const;
-                Iterator& operator++();//Prefix
-                Iterator operator++(int);//Postfix
-                bool operator==(const Iterator& i) const;
-                bool operator!=(const Iterator& i) const;
-                T* operator->() const;
-                class InvalidOperation
-                {};
-                //I need to check why this returns a pointer
-        };
-        class ConstIterator
-        {
-            private:
-                const Node* nodePtr; 
-                int index; 
-            public:
-                ConstIterator(const Node* node, int index):
-                nodePtr(node), index(index){};
-                //Interface part
-                const T& operator*() const;
-                ConstIterator& operator++();//Prefix
-                ConstIterator operator++(int);//Postfix
-                bool operator==(const ConstIterator& i) const;
-                bool operator!=(const ConstIterator& i) const;
-                const T* operator->() const;
-                //I need to check why this returns a pointer
-                class InvalidOperation
-                {};
-        };
-        friend class Iterator;
-        friend class ConstIterator;
-        Iterator begin();
-        Iterator end();
-        ConstIterator begin() const;
-        ConstIterator end() const;
-        //Interface part
-        void pushBack(T);
-        T& front() const;
-        void popFront();
-        int size() const;
-        Queue():
-        head(nullptr), tail(nullptr), m_size(0){}; 
-        ~Queue();
-        class EmptyQueue
-        {
-            
-        };
+#include <cstdlib>
+template <class T> class Queue {
+public:
+    Queue();
+    Queue(const Queue<T>& other);
+    Queue<T>& operator=(const Queue<T>& other);
+    ~Queue();
+    void pushBack(T);
+    T& front() const;
+    void popFront();
+    int size() const;
+    class EmptyQueue {};
+    class Iterator;
+    Iterator begin();
+    Iterator end();
+    class ConstIterator;
+    ConstIterator begin() const;
+    ConstIterator end() const;
 
 
+private:
+    T* m_data;
+    int m_size;
+    int m_maxSize;
+    void grow();
 
-
-
-    //The Queue will be impemented using A generic Node Type 
-
+    static const int GROW_RATE = 2;
+    static const int INITIAL_SIZE = 1;
 };
 
-//Implmenting the Node class
-
-template <class T>
-bool Queue<T>::Node::operator!=(const Node& n1)
+template <class T> Queue<T>::Queue()
 {
-    return (this != &n1);
+    m_size = 0;
+    m_maxSize = INITIAL_SIZE;
+    m_data = new T[m_maxSize];
+}
 
-} 
-
-
-//Maybee I forgot to implment stuff I'll ask chatgbt for it's suggestion!
-
-template <class T>
-void Queue<T>::pushBack(T data)
+template <class T> Queue<T>::Queue(const Queue<T>& other)
 {
-    try
-    {
-        Node *newNode = new Node(data);
-        // Bad alloc exception here
-        // Update size
-        if(m_size == 0)
-        {
-            head = newNode;
-            tail = head;
-        }
-        m_size++;
-        // Check if queue is empty
-            // Set next of current tail to new node
-        tail->next = newNode;
-        tail = newNode;
-        // Set tail to new node
-    }
-    catch (std::bad_alloc& ba)
-    {
-        std::cout << "Out of memory!!";
-        //Handle Exeption (do nothing)
-
+    Queue<T> temp;
+    m_size = other.m_size;
+    m_maxSize = other.m_size;
+    m_data = new T[m_size];
+    for (int i = 0; i < m_maxSize; ++i) {
+        m_data[i] = other.m_data[i];
     }
 }
 
-
-template <class T>
-T& Queue<T>::front() const
+template <class T> Queue<T>& Queue<T>::operator=(const Queue<T>& other)
 {
-    if(m_size == 0)
-    {
-        //Queue is empty, Throw exception
-        throw Queue<T>::EmptyQueue();
+    if (this == &other) {
+        return *this;
     }
-    //Else throw an exception!
-    return head->data;
+    T* temp = new T[other.m_size];
+    for (int i = 0; i < other.m_size; ++i) {
+        temp[i] = other.m_data[i];
+    }
+
+    delete[] m_data;
+    m_data = temp;
+    m_size = other.m_size;
+    m_maxSize = other.m_size;
+    return *this;
 }
 
-template <class T>
-void Queue<T>::popFront()
+template <class T> Queue<T>::~Queue()
 {
-    //Thorw Exception here *******************************
-    if(head == nullptr)//Empty queue
-    {
-        throw Queue<T>::EmptyQueue();
-            //We may need the exceptions file to be here!
+    delete[] m_data;
+}
+
+template <class T> void Queue<T>::grow()
+{
+    m_maxSize *= GROW_RATE;
+    T* temp = new T[m_maxSize];
+    for (int i = 0; i < m_size; ++i) {
+        temp[i] = m_data[i];
     }
-        //Operator != added in Node class
-    Node* temp = head;
-        //No assignment operator needed since we are dealing with pointers! (ints)
-    head = head->next;
+
+    delete[] m_data;
+    m_data = temp;
+}
+
+template <class T> void Queue<T>::pushBack(T data)
+{
+    if (m_maxSize == m_size) {
+        grow();
+    }
+
+    m_data[m_size] = data;
+    m_size++;
+}
+
+template <class T> T& Queue<T>::front() const
+{
+    if (m_size == 0) {
+        throw EmptyQueue();
+    }
+    return m_data[0];
+}
+
+template <class T> void Queue<T>::popFront()
+{
+    if (m_size == 0) {
+        throw EmptyQueue();
+    }
+
+    for (int i = 0; i < m_size - 1; ++i) {
+        m_data[i] = m_data[i + 1];
+    }
     m_size--;
-    delete temp;
-    //Destrucor needed for Node ? 
 }
 
-
-template <class T>
-int Queue<T>::size() const
+template <class T> int Queue<T>::size() const
 {
     return m_size;
 }
 
-//Implemnting the Iterator Part
-template <typename T>
-T& Queue<T>::Iterator::operator*() const
-{
-    
-    //Check no null pointers
+template <class T> class Queue<T>::Iterator {
+private:
+    Queue<T>* m_queue;
+    int m_index;
+    Iterator(Queue<T>* queue, int index);
+    friend class Queue<T>;
 
-        if(this->nodePtr == TERMINATORNODE)
-        {
-            //Portnetial problem with the indexes here
-            throw Queue<T>::Iterator::InvalidOperation();
-        }
-        if(!this->nodePtr)
-        {
-            //NullPointer
-            throw Queue<T>::Iterator::InvalidOperation();
-        }
-        return this->nodePtr->data;
-    
-}
+public:
+    T& operator*() const;
+    T* operator->() const;
+    Iterator& operator++();
+    Iterator operator++(int);
 
+    bool operator==(const Iterator& iter) const;
+    bool operator!=(const Iterator& iter) const;
 
-template <typename T>
-const T& Queue<T>::ConstIterator::operator*() const
-{
-    
-    //Check no null pointers
+    Iterator(const Iterator&) = default;
+    Iterator& operator=(const Iterator&) = default;
+    class InvalidOperation {};
+};
 
-        if(this->nodePtr == TERMINATORNODE)
-        {
-            //Portnetial problem with the indexes here
-            throw Queue<T>::ConstIterator::InvalidOperation();
-        }
-        if(!this->nodePtr)
-        {
-            //NullPointer
-            throw Queue<T>::ConstIterator::InvalidOperation();
-        }
-        return this->nodePtr->data;
-    
-}
-template <typename T>
-typename Queue<T>::Iterator Queue<T>::begin()
-{
-        if(m_size == 0)
-        {
-            //Empty Queue
-            throw Queue<T>::EmptyQueue();
-        }
-        return Iterator(Queue<T>::head, 0);
-}
-
-template <typename T>
-typename Queue<T>::Iterator Queue<T>::end()
-{
-    
-    return Iterator(nullptr, m_size);
-}
-
-template <typename T>
-typename Queue<T>::ConstIterator Queue<T>::begin() const
-{
-        if(m_size == 0)
-        {
-            //Empty Queue
-            throw Queue<T>::EmptyQueue();
-        }
-        return ConstIterator(Queue<T>::head, 0);
-}
-
-template <typename T>
-typename Queue<T>::ConstIterator Queue<T>::end() const
-{
-    return ConstIterator(nullptr, m_size);
-}
-
-template <typename T>
-typename Queue<T>::Iterator& Queue<T>::Iterator::operator++()//Prefix
-{
-    //Index in bounds
-    //Check Valid operator 
-
-
-    if(!&(*this->nodePtr))
-    {
-        throw Queue<T>::Iterator::InvalidOperation();
-    }
-    nodePtr = nodePtr->next;
-    return *this;
-}
-
-template <typename T>
-typename Queue<T>::ConstIterator& Queue<T>::ConstIterator::operator++()//Prefix
-{
-    //Index in bounds
-    if(!&(*this->nodePtr))
-    {
-        throw Queue<T>::ConstIterator::InvalidOperation();
-    }
-    nodePtr = nodePtr->next;
-    return *this;
-}
-
-template <typename T>
-typename Queue<T>::ConstIterator Queue<T>::ConstIterator::operator++(int)//postfix
-{
-    if(!&(*this->nodePtr))
-    {
-        throw Queue<T>::ConstIterator::InvalidOperation();
-    }
-    Queue<T>::ConstIterator result = *this;
-    ++*this;
-    return result;
-    //Genius !!!!!
-}
-template <typename T>
-typename Queue<T>::Iterator Queue<T>::Iterator::operator++(int)//postfix
-{
-    if(!&(*this->nodePtr))
-    {
-        throw Queue<T>::Iterator::InvalidOperation();
-    }
-    Queue<T>::ConstIterator result = *this;
-    ++*this;
-    return result;
-    //Genius !!!!!
-}
-template <typename T>
-bool Queue<T>::Iterator::operator==(const Iterator& i) const
-{
-    //Will return true if the iterator points to the same address
-    return (i.nodePtr == this->nodePtr);
-
-}
-template <typename T>
-bool Queue<T>::ConstIterator::operator==(const ConstIterator& i) const
-{
-    //Will return true if the iterator points to the same address
-    return (i.nodePtr == this->nodePtr);
-
-}
-
-
-template <typename T>
-bool Queue<T>::Iterator::operator!=(const Iterator& i) const
-{
-    return (i.nodePtr != this->nodePtr);
-}
-template <typename T>
-bool Queue<T>::ConstIterator::operator!=(const ConstIterator& i) const
-{
-    return (i.nodePtr != this->nodePtr);
-}
-
-template <typename T>
-T* Queue<T>::Iterator::operator->() const
-{
-    if(this->nodePtr == TERMINATORNODE)
-    {
-        throw Queue<T>::Iterator::InvalidOperation();
-    }
-    return &(this->nodePtr->data);
-}
-
-template <typename T>
-const T* Queue<T>::ConstIterator::operator->() const
-{
-    if(this->nodePtr == TERMINATORNODE)
-    {
-        throw Queue<T>::ConstIterator::InvalidOperation();
-    }
-    return &(this->nodePtr->data);
-}
-
-//Destructor that cleans the queue
 template <class T>
-Queue<T>::~Queue()
+Queue<T>::Iterator::Iterator(Queue<T>* queue, int index)
+    : m_queue(queue)
+    , m_index(index)
 {
-    for (Node* current = head; current != TERMINATORNODE; )
-    {
-        Node* next = current->next;
-        delete current;
-        current = next;
-    }
 }
 
-template <class T, class Condition>
-Queue<T> filter(Queue<T>& inputQueue ,const Condition& condition)
+template <class T> T& Queue<T>::Iterator::operator*() const
+{
+    return m_queue->m_data[m_index];
+}
+
+template <class T> T* Queue<T>::Iterator::operator->() const
+{
+    if (m_index < 0 || m_index > m_queue->size()) {
+        throw Queue<T>::ConstIterator::InvalidOperation();
+    }
+    return &(m_queue->m_data[m_index]);
+}
+
+
+template <class T> typename Queue<T>::Iterator& Queue<T>::Iterator::operator++()
+{
+    if (m_index == m_queue->m_size) {
+        throw InvalidOperation();
+    }
+    ++m_index;
+    return *this;
+}
+
+template <class T> typename Queue<T>::Iterator Queue<T>::Iterator::operator++(int)
+{
+    Iterator result = *this;
+    ++*this;
+    return result;
+}
+
+template <class T> bool Queue<T>::Iterator::operator==(const Iterator& iter) const
+{
+    return m_index == iter.m_index;
+}
+
+template <class T> bool Queue<T>::Iterator::operator!=(const Iterator& iter) const
+{
+    return !(*this == iter);
+}
+
+template <class T> typename Queue<T>::Iterator Queue<T>::begin()
+{
+    return Iterator(this, 0);
+}
+
+template <class T> typename Queue<T>::Iterator Queue<T>::end()
+{
+    return Iterator(this, m_size);
+}
+
+template <class T> class Queue<T>::ConstIterator {
+private:
+    const Queue<T>* m_queue;
+    int m_index;
+    ConstIterator(const Queue<T>* queue, int index);
+    friend class Queue<T>;
+
+public:
+    const T& operator*() const;
+    const T* operator->() const;
+    ConstIterator& operator++();
+    ConstIterator operator++(int);
+
+    bool operator==(const ConstIterator& iter) const;
+    bool operator!=(const ConstIterator& iter) const;
+
+    ConstIterator(const ConstIterator&) = default;
+    ConstIterator& operator=(const ConstIterator&) = default;
+    class InvalidOperation {};
+};
+
+template <class T>
+Queue<T>::ConstIterator::ConstIterator(const Queue<T>* queue, int index)
+    : m_queue(queue)
+    , m_index(index)
+{
+}
+
+template <class T> const T& Queue<T>::ConstIterator::operator*() const
+{
+    return m_queue->m_data[m_index];
+}
+
+template <class T> const T* Queue<T>::ConstIterator::operator->() const
+{
+    if (m_index < 0 || m_index > m_queue->size()) {
+        throw Queue<T>::ConstIterator::InvalidOperation();
+    }
+    return &(m_queue->m_data[m_index]);
+}
+
+template <class T> typename Queue<T>::ConstIterator& Queue<T>::ConstIterator::operator++()
+{
+    if (m_index < 0 || m_index >= m_queue->m_size) {
+        throw InvalidOperation();
+    }
+    ++m_index;
+    return *this;
+}
+
+template <class T> typename Queue<T>::ConstIterator Queue<T>::ConstIterator::operator++(int)
+{
+    ConstIterator result = *this;
+    ++*this;
+    return result;
+}
+
+template <class T> bool Queue<T>::ConstIterator::operator==(const ConstIterator& iter) const
+{
+    return m_index == iter.m_index;
+}
+
+template <class T> bool Queue<T>::ConstIterator::operator!=(const ConstIterator& iter) const
+{
+    return !(*this == iter);
+}
+
+template <class T> typename Queue<T>::ConstIterator Queue<T>::begin() const
+{
+    return ConstIterator(this, 0);
+}
+
+template <class T> typename Queue<T>::ConstIterator Queue<T>::end() const
+{
+    return ConstIterator(this, m_size);
+}
+
+
+template <class T, class Condition> Queue<T> filter(Queue<T>& queue, const Condition& condition)
 {
     Queue<T> result;
-    for (typename Queue<T>::Iterator i = inputQueue.begin(); i != inputQueue.end(); ++i) {
-        if (condition(*i)) {
-            result.pushBack(*i);
+    for (T element : queue) {
+        if (condition(element)) {
+            result.pushBack(element);
         }
     }
     return result;
 }
 
-template <class T, class Operation>
-void transform(Queue<T>& inputQueue ,Operation operation)
+template <class T, class Operation> void transform(Queue<T>& inputQueue, Operation operation)
 {
     for (T& element : inputQueue) {
         operation(element);
     }
 }
-
 
 #endif
